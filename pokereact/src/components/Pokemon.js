@@ -23,7 +23,6 @@ const Pokemon = (props) =>{
     }
     const calcularDefensa = () =>{
         return 60 + (nivel * 2);
-
     }
 
 return <div>
@@ -34,7 +33,6 @@ return <div>
     <p>HP: {calcularHP()} </p>
     <p>Ataque: {calcularAtaque()}</p>
     <p>Defensa: {calcularDefensa()}</p>
-
 </div>
 
 }
