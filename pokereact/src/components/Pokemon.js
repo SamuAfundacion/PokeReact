@@ -1,40 +1,76 @@
-import { useState } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-const Pokemon = (props) =>{
+const Pokemon = (props) => {
+    const [nivel, setNivel] = useState(1);
+    const [nombre,setNombre] = useState("");
+    const [imgFrontUrl, setImgFrontUrl]= useState();
+    const [imgBackUrl, setImgBackUrl]= useState();
+    const [baseHP, setBaseHp] = useState();
+    const [baseAttack,setBaseAttack] = useState();
+    const [baseDefense, setBaseDefense] = useState();
 
-    const [nivel,setNivel] = useState(1);
+    const params = useParams();
+    useEffect(() => {
+        axios.get("https://pokeapi.co/api/v2/pokemon/"+ID).then(response => {
+            setNombre(response.data.name);
+            setImgFrontUrl(response.data.sprites.front_default);
+            setImgBackUrl(response.data.sprites.back_default);
+            setBaseHp(getStat("hp",response.data.stats));
+            setBaseAttack(getStat("attack",response.data.stats));
+            setBaseDefense(getStat("defense",response.data.stats));
+    
+        })
+    
+    }, [])
 
-    const onSubirNivel = (event) =>{
-        setNivel(oldValue => oldValue+1);
+    const ID = params.id;
+
+
+    function getStat(nombreStat, arrayStats){
+      const filteredArray =   arrayStats.filter(s  => s.stat.name === nombreStat)
+        if(filteredArray.length === 0){
+            return -1
+        }
+        return filteredArray[0].base_stat;
     }
-    const onBajarNivel = (event) =>{
-        setNivel(oldValue => oldValue-1);
+    //la sintaxis mas moderna es  async-await 
+    
+
+    const onSubirNivel = (event) => {
+        setNivel(n => n + 1)
+    }
+
+    const onBajarNivel = (event) => {
+        setNivel(n => n - 1)
     }
 
     const calcularHP = () => {
-        //TODO: Use formula real
-        //This one is made up
-        return 65 + (nivel * 3);
+        //toDo: usar la fórmula real, esta es inventada.
+        return baseHP + (nivel * 3);
     }
 
-    const calcularAtaque = () =>{
-        return 130 + (nivel * 2);
-
-    }
-    const calcularDefensa = () =>{
-        return 60 + (nivel * 2);
+    const calcularAtaque = () => {
+        return baseAttack + (nivel * 2);
     }
 
-return <div>
-    <h1>Absol</h1>
-    <h2>Nivel: {nivel} </h2>
-    <button onClick={onSubirNivel}>Subir nivel</button>
-    <button onClick={onBajarNivel}>Bajar nivel</button>
-    <p>HP: {calcularHP()} </p>
-    <p>Ataque: {calcularAtaque()}</p>
-    <p>Defensa: {calcularDefensa()}</p>
-</div>
+    const calcularDefensa = () => {
+        return baseDefense + (nivel * 2);
+    }
 
+    return <div>
+        <h1>{nombre}</h1>
+        <img src={imgFrontUrl}  style={{ width: "250px", heigth: "250px"}}/>
+        <img src={imgBackUrl} style={{ width: "250px", heigth: "250px"}} />
+
+        <h2>Nivel: {nivel}</h2>
+        <button onClick={onSubirNivel}>Subir Nivel</button>
+        <button onClick={onBajarNivel}>Bajar Nivel</button>
+        <p>HP: {calcularHP()}</p>
+        <p>Ataque: {calcularAtaque()}</p>
+        <p>Defensa: {calcularDefensa()}</p>
+    </div>
 }
 
 export default Pokemon;
